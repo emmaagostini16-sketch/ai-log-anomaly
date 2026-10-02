@@ -214,9 +214,7 @@ El modelo utiliza las siguientes características:
 - `is_sensitive_path`
 
 
-Las variables `is_error` e `is_sensitive_path`
-
-son generadas durante la preparación de las features.
+Las variables `is_error` e `is_sensitive_path` son generadas durante la preparación de las features.
 
 Las variables categóricas `method` y `path` son procesadas mediante `OneHotEncoder`:
 
