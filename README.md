@@ -130,39 +130,39 @@ Distribuidos en: 10.000 registros normales y 500 registros anómalos
 
 Cada registro contiene:
 
--timestamp
--ip
--method
--path
--status
--response_time
--label
+- `timestamp`
+- `ip`
+- `method`
+- `path`
+- `status`
+- `response_time`
+- `label`
 
 
 El campo `label` indica:
 
-0 = normal
-1 = anomalía
+- `0` = normal
+- `1` = anomalía
 
 Los registros normales simulan tráfico habitual hacia recursos como:
 
-/
-/home
-/products
-/product/1
-/product/2
-/login
-/cart
-/checkout
-/contact
+- `/`
+- `/home`
+- `/products`
+- `/product/1`
+- `/product/2`
+- `/login`
+- `/cart`
+- `/checkout`
+- `/contact`
 
 Los registros anómalos incluyen comportamientos artificialmente sospechosos, por ejemplo accesos a:
 
-/admin
-/wp-admin
-/etc/passwd
-/.env
-/config.php
+- `/admin`
+- `/wp-admin`
+- `/etc/passwd`
+- `/.env`
+- `/config.php`
 
 
 También presentan combinaciones de códigos HTTP de error y tiempos de respuesta superiores a los generados para el tráfico normal.
@@ -191,37 +191,38 @@ Isolation Forest es un algoritmo de detección de anomalías que permite identif
 
 Para este prototipo se configuró:
 
-python
+```python
 IsolationForest(
     contamination=0.05,
     random_state=42
 )
+```
 
-contamination=0.05 establece una proporción esperada de anomalías del 5%, valor cercano al 4,76% presente en el dataset sintético. Este parámetro interviene en la definición del umbral utilizado por Isolation Forest para clasificar observaciones como normales o anómalas. random_state=42 fija la semilla utilizada por los procesos aleatorios del algoritmo, permitiendo reproducir los resultados bajo las mismas condiciones. El valor 42 no tiene un significado técnico particular; se utiliza simplemente como una semilla fija.
+`contamination=0.05` establece una proporción esperada de anomalías del 5%, valor cercano al 4,76% presente en el dataset sintético. Este parámetro interviene en la definición del umbral utilizado por Isolation Forest para clasificar observaciones como normales o anómalas.
+
+`random_state=42` fija la semilla utilizada por los procesos aleatorios del algoritmo, permitiendo reproducir los resultados bajo las mismas condiciones. El valor 42 no tiene un significado técnico particular; se utiliza simplemente como una semilla fija.
 
 ### Features
 
 El modelo utiliza las siguientes características:
 
--method
--path
--status
--response_time
--is_error
--is_sensitive_path
+- `method`
+- `path`
+- `status`
+- `response_time`
+- `is_error`
+- `is_sensitive_path`
 
 
-Las variables:
-
-is_error
-is_sensitive_path
+Las variables `is_error` e `is_sensitive_path`
 
 son generadas durante la preparación de las features.
 
 Las variables categóricas `method` y `path` son procesadas mediante `OneHotEncoder`:
 
-python
+```python
 OneHotEncoder(handle_unknown="ignore")
+```
 
 Esto permite que la aplicación procese categorías no presentes durante el entrenamiento sin producir un error por una categoría desconocida.
 
@@ -233,7 +234,7 @@ El entrenamiento y la ejecución de la API se encuentran separados.
 
 El modelo se entrena previamente y posteriormente se persiste utilizando `joblib`:
 
-model/anomaly_model.pkl
+`model/anomaly_model.pkl`
 
 Cuando se inicia la API, el modelo ya entrenado es cargado desde este archivo.
 
@@ -247,19 +248,19 @@ Esta implementación interpreta el requisito de modelo preentrenado como la util
 
 Para realizar una evaluación sobre registros que no participaron del entrenamiento, el dataset se divide utilizando:
 
-80% entrenamiento
-20% evaluación
+- 80% entrenamiento
+- 20% evaluación
 
 Sobre los 10.500 registros:
 
-Entrenamiento: 8.400 registros
-Evaluación:    2.100 registros
+- Entrenamiento: 8.400 registros
+- Evaluación: 2.100 registros
 
 
 La distribución de anomalías fue:
 
-Entrenamiento: 400 anomalías
-Evaluación:    100 anomalías
+- Entrenamiento: 400 anomalías
+- Evaluación: 100 anomalías
 
 Se utilizó `random_state=42` para mantener reproducibilidad y `stratify` sobre el label para conservar la proporción de registros normales y anómalos.
 
@@ -273,6 +274,7 @@ El modelo fue evaluado sobre los **2.100 registros del conjunto holdout**, no ut
 
 Resultados obtenidos:
 
+```text
 Total de registros: 2100
 Anomalías reales: 100
 Anomalías detectadas: 103
@@ -281,6 +283,7 @@ True Negatives  (TN): 1997
 False Positives (FP): 3
 False Negatives (FN): 0
 True Positives  (TP): 100
+```
 
 Métricas:
 
@@ -297,15 +300,16 @@ En este conjunto de evaluación, el modelo detectó las 100 anomalías existente
 
 Adicionalmente se realizó una prueba invirtiendo la proporción:
 
-20% entrenamiento
-80% evaluación
+- 20% entrenamiento
+- 80% evaluación
 
 Esto permitió observar el comportamiento del modelo cuando dispone de una cantidad considerablemente menor de registros para entrenamiento.
 
 Resultados:
 
+```text
 Entrenamiento: 2.100 registros
-Evaluación:    8.400 registros
+Evaluación: 8.400 registros
 
 Anomalías reales en evaluación: 400
 Anomalías detectadas: 438
@@ -314,6 +318,7 @@ True Negatives  (TN): 7962
 False Positives (FP): 38
 False Negatives (FN): 0
 True Positives  (TP): 400
+```
 
 Métricas:
 
@@ -338,30 +343,33 @@ La aplicación utiliza FastAPI.
 
 Una vez iniciada se encuentra disponible en:
 
-http://localhost:8000
+`http://localhost:8000`
 
 La documentación Swagger se encuentra en:
 
-http://localhost:8000/docs
+`http://localhost:8000/docs`
 
 
 ### Health check
 
-GET /health
+`GET /health`
 
 
 Respuesta:
 
+```json
 {
   "status": "ok"
 }
+```
 
 ### Análisis de logs
 
-POST /analyze
+`POST /analyze`
 
 Ejemplo de request:
 
+```json
 {
   "logs": [
     {
@@ -384,15 +392,16 @@ Ejemplo de request:
     }
   ]
 }
+```
 
 La respuesta incluye:
 
-threat_detected
-anomalies
-total_logs
-anomaly_ratio
-action
-reason
+- `threat_detected`
+- `anomalies`
+- `total_logs`
+- `anomaly_ratio`
+- `action`
+- `reason`
 
 ---
 
@@ -402,6 +411,7 @@ reason
 
 Para un lote donde el modelo no identifica anomalías:
 
+```json
 {
   "threat_detected": false,
   "anomalies": 0,
@@ -410,12 +420,14 @@ Para un lote donde el modelo no identifica anomalías:
   "action": "allow",
   "reason": "No anomalous behavior was detected in the analyzed logs."
 }
+```
 
 
 ### Actividad parcialmente anómala
 
 Si se detectan anomalías pero representan menos del 50% del lote:
 
+```json
 {
   "threat_detected": true,
   "anomalies": 1,
@@ -424,11 +436,13 @@ Si se detectan anomalías pero representan menos del 50% del lote:
   "action": "alert",
   "reason": "Anomalous activity detected: 1 of 4 logs were classified as anomalous."
 }
+```
 
 ### Actividad altamente anómala
 
 Ejemplo obtenido durante las pruebas:
 
+```json
 {
   "threat_detected": true,
   "anomalies": 4,
@@ -437,6 +451,7 @@ Ejemplo obtenido durante las pruebas:
   "action": "block",
   "reason": "High anomaly ratio detected: 4 of 4 logs were classified as anomalous."
 }
+```
 
 ## 11. Ejecución con Docker
 
@@ -451,16 +466,20 @@ No es necesario instalar manualmente las dependencias de Python si se utiliza Do
 
 Desde la raíz del proyecto:
 
+```powershell
 docker build -t ai-log-anomaly .
+```
 
 ### Ejecutar la API
 
+```powershell
 docker run --rm -p 8000:8000 ai-log-anomaly
+```
 
 
 Luego acceder a:
 
-http://localhost:8000/docs
+`http://localhost:8000/docs`
 
 para utilizar Swagger UI.
 
@@ -474,7 +493,9 @@ Si se desea volver a generar el dataset y entrenar nuevamente el modelo:
 
 ### Generar dataset
 
+```powershell
 docker run --rm -v "${PWD}/data:/app/data" ai-log-anomaly python -m app.generate_dataset
+```
 
 ### Entrenar
 
@@ -484,8 +505,8 @@ docker run --rm -v "${PWD}\model:/app/model" ai-log-anomaly python -m app.train_
 
 El proceso genera:
 
-model/anomaly_model.pkl
-model/test_data.csv
+- `model/anomaly_model.pkl`
+- `model/test_data.csv`
 
 ### Evaluar
 
@@ -504,11 +525,15 @@ Los escenarios cubiertos incluyen:
 
 Ejecutar:
 
+```powershell
 docker run --rm ai-log-anomaly pytest -v
+```
 
 Resultado obtenido:
 
+```text
 4 passed
+```
 
 Actualmente puede mostrarse una advertencia de deprecación asociada a la integración entre `Starlette TestClient` y `httpx`. La advertencia no impide la ejecución de los tests.
 
@@ -588,11 +613,13 @@ La API únicamente carga el artefacto previamente generado y realiza inferencia,
 
 La lógica fue separada en dos responsabilidades:
 
+```text
 Log Ingestion Agent
         ↓
 Isolation Forest
         ↓
 Decision Agent
+```
 
 Esto permite desacoplar la preparación de datos de la política utilizada para responder ante las anomalías.
 
