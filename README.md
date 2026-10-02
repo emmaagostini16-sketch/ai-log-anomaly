@@ -515,6 +515,9 @@ Actualmente puede mostrarse una advertencia de deprecación asociada a la integr
 
 ## 14. Estructura del proyecto
 
+## 14. Estructura del proyecto
+
+```text
 ai-log-anomaly/
 ├── .gitignore
 ├── Dockerfile
@@ -537,12 +540,22 @@ ai-log-anomaly/
 ├── data/
 │   └── access_logs.csv
 │
+├── docs/
+│   └── images/
+│       ├── 01-swagger-api.png
+│       ├── 02-analyze-allow.png
+│       ├── 03-analyze-alert.png
+│       ├── 04-analyze-block.png
+│       ├── 05-model-evaluation.png
+│       └── 06-pytest.png
+│
 ├── model/
 │   ├── anomaly_model.pkl
 │   └── test_data.csv
 │
 └── tests/
     └── test_api.py
+```
 
 ## 15. Tecnologías utilizadas
 
