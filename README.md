@@ -499,17 +499,18 @@ docker run --rm -v "${PWD}/data:/app/data" ai-log-anomaly python -m app.generate
 
 En PowerShell:
 
+```powershell
 docker run --rm -v "${PWD}\model:/app/model" ai-log-anomaly python -m app.train_model
-
+```
 El proceso genera:
 
 - `model/anomaly_model.pkl`
 - `model/test_data.csv`
 
 ### Evaluar
-
+```powershell
 docker run --rm -v "${PWD}\model:/app/model" ai-log-anomaly python -m app.evaluate_model
-
+```
 ## 13. Tests
 
 Se implementaron tests automatizados para validar los principales comportamientos de la API.
