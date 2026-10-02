@@ -512,9 +512,6 @@ Resultado obtenido:
 
 Actualmente puede mostrarse una advertencia de deprecación asociada a la integración entre `Starlette TestClient` y `httpx`. La advertencia no impide la ejecución de los tests.
 
-
-## 14. Estructura del proyecto
-
 ## 14. Estructura del proyecto
 
 ```text
